@@ -13,7 +13,7 @@
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(79, 6, NEO_GRB + NEO_KHZ800); 
 
-int lightUpLen = 30;
+int lightUpLen = 20;
 
 void setup() {
 
@@ -28,6 +28,7 @@ void setup() {
 
 void loop() {
   rainbowchase(25);
+  rainbowchaseComplex(25);
 }
 
 static void rainbowchase( uint8_t wait) {
@@ -36,10 +37,32 @@ static void rainbowchase( uint8_t wait) {
       j = random(0, 255);
       strip.setPixelColor(i, Wheel((i+j) & 255));
       strip.setPixelColor(i-lightUpLen, 0); // Erase pixel a few steps back
+      
       strip.show();
       delay(wait);
   }
 }
+
+static void rainbowchaseComplex( uint8_t wait) {
+  uint16_t j = 0;
+  uint16_t k = 0;
+
+  for (uint16_t numStreaks=0; numStreaks<4; numStreaks++) {
+   
+    k = random(0,lightUpLen);
+    
+    for(uint16_t i=0; i<strip.numPixels()+k; i++) {
+      j = random(0, 255);
+      
+      strip.setPixelColor(i, Wheel((i+j) & 255));
+      strip.setPixelColor(i-k, 0); // Erase pixel a few steps back
+
+      strip.show();
+      delay(wait);
+    }
+  }
+}
+
 
 // rainbow: Generates various colors.
 void rainbow(uint8_t wait) {
