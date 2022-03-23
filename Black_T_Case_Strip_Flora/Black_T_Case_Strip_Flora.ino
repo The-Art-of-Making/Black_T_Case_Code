@@ -13,7 +13,8 @@
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(79, 6, NEO_GRB + NEO_KHZ800); 
 
-int lightUpLen = 20;
+int lightUpLen = 10;
+int maxLightLen = 40;
 
 void setup() {
 
@@ -53,7 +54,7 @@ static void rainbowchaseComplex() {
    
     len1 = random(0,lightUpLen);
     len2 = random(0,lightUpLen);
-    len3 = random(0,lightUpLen);
+    len3 = maxLightLen - len1 - len2;
 
     if (len1 < len2) {
       uint16_t lenhold = len1;
@@ -69,19 +70,26 @@ static void rainbowchaseComplex() {
     for(uint16_t i=0; i<strip.numPixels()+len1+len2+len3+10+20; i++) {
       
       j = random(0, 255);
-      
-      strip.setPixelColor(i, Wheel((i+j) & 255));
-      strip.setPixelColor(i-len1, 0); // Erase pixel a few steps back
 
+      if (i < strip.numPixels()+len1) {
+          strip.setPixelColor(i, Wheel((i+j) & 255));
+          strip.setPixelColor(i-len1, 0); // Erase pixel a few steps back
+      }
+
+      if (i < strip.numPixels()+len1+len2+10) {
       strip.setPixelColor(i-len1-10, Wheel((i+j) & 255));
       strip.setPixelColor(i-len2-len1-10, 0); // Erase pixel a few steps back
+      }
+
       
+      if (i < strip.numPixels()+len1+len2+len3+10+20) {
       strip.setPixelColor(i-len2-len1-10-20, Wheel((i+j) & 255));
       strip.setPixelColor(i-len3-len2-len1-10-20, 0); // Erase pixel a few steps back
+      }
 
       strip.show();
       
-      wait = random(10, 25);
+      wait = random(5, 30);
       delay(wait);
     }
   }
