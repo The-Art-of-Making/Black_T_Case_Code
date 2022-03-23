@@ -46,21 +46,28 @@ static void rainbowchaseComplex() {
   uint16_t j = 0;
   uint16_t len1 = 0;
   uint16_t len2 = 0;
+  uint16_t len3 = 0;
    uint8_t wait = 0;
 
   for (uint16_t numStreaks=0; numStreaks<4; numStreaks++) {
    
     len1 = random(0,lightUpLen);
     len2 = random(0,lightUpLen);
-    wait = random(10, 25);
+    len3 = random(0,lightUpLen);
 
     if (len1 < len2) {
       uint16_t lenhold = len1;
       len1 = len2;
       len2 = lenhold;
     }
+    if (len1 < len3) {
+      uint16_t lenhold = len1;
+      len1 = len3;
+      len3 = lenhold;
+    }
     
-    for(uint16_t i=0; i<strip.numPixels()+len1+10; i++) {
+    for(uint16_t i=0; i<strip.numPixels()+len1+len2+len3+10+20; i++) {
+      
       j = random(0, 255);
       
       strip.setPixelColor(i, Wheel((i+j) & 255));
@@ -68,8 +75,13 @@ static void rainbowchaseComplex() {
 
       strip.setPixelColor(i-len1-10, Wheel((i+j) & 255));
       strip.setPixelColor(i-len2-len1-10, 0); // Erase pixel a few steps back
+      
+      strip.setPixelColor(i-len2-len1-10-20, Wheel((i+j) & 255));
+      strip.setPixelColor(i-len3-len2-len1-10-20, 0); // Erase pixel a few steps back
 
       strip.show();
+      
+      wait = random(10, 25);
       delay(wait);
     }
   }
