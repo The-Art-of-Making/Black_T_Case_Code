@@ -13,7 +13,6 @@
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(79, 6, NEO_GRB + NEO_KHZ800); 
 
-int lightUpLen = 10;
 int maxLightLen = 40;
 
 void setup() {
@@ -28,46 +27,114 @@ void setup() {
 
 
 void loop() {
-  rainbowchaseComplex();
+  for (uint16_t i=0; i<=4; i++) {
+    rainbowchaseComplex();
+  }
+  //burst(10);
 }
 
-static void rainbowchase( uint8_t wait) {
+static void fadeOut() {
+  for (uint16_t i=255; i>=0; i--) {
+    strip.setBrightness(i);
+    strip.show();
+    delay(5);
+  }
+}
+
+static void fadeIn() {
+  for (uint16_t i=0; i<=255; i++) {
+    strip.setBrightness(i);
+    strip.show();
+    delay(5);
+  }
+}
+
+static void burst(uint8_t wait) {
+  uint16_t pixelcolor = 0;
+  for(uint16_t i=0; i<strip.numPixels(); i++) {
+    uint16_t j = 0;
+    if (i%2 == 0) {
+      j = random(0, 255);
+      pixelcolor = Wheel((i+j) & 255);
+    }
+    else {
+      pixelcolor = 0;
+    }
+    j = random(0, 255);
+    strip.setPixelColor(i, pixelcolor);
+  }
+  strip.show();
+  fadeOut();
+  fadeIn();
+  
+  for(uint16_t i=0; i<strip.numPixels(); i++) {
+    uint16_t j = 0;
+    if (i%2 != 0) {
+      j = random(0, 255);
+      pixelcolor = Wheel((i+j) & 255);
+    }
+    else {
+      pixelcolor = 0;
+    }
+    strip.setPixelColor(i, pixelcolor);
+  }
+  strip.show();
+  fadeOut();
+  fadeIn();
+}
+
+
+static void rainbowchase() {
   uint16_t j = 0;
-  for(uint16_t i=0; i<strip.numPixels()+lightUpLen; i++) {
+  for(uint16_t i=0; i<strip.numPixels()+10; i++) {
       j = random(0, 255);
       strip.setPixelColor(i, Wheel((i+j) & 255));
-      strip.setPixelColor(i-lightUpLen, 0); // Erase pixel a few steps back
+      strip.setPixelColor(i-10, 0); // Erase pixel a few steps back
       
       strip.show();
-      delay(wait);
+      delay(25);
   }
 }
 
 static void rainbowchaseComplex() {
   uint16_t j = 0;
   uint16_t len1 = 0;
+  uint16_t mid12 = 10;
   uint16_t len2 = 0;
+  uint16_t mid23 = 20;
   uint16_t len3 = 0;
+  uint16_t streamlen = 0;
    uint8_t wait = 0;
 
   for (uint16_t numStreaks=0; numStreaks<4; numStreaks++) {
    
-    len1 = random(0,lightUpLen);
-    len2 = random(0,lightUpLen);
-    len3 = maxLightLen - len1 - len2;
+    wait = random(5, 30);              //Speed Of Current Run
+    len1 = random(0,maxLightLen/2);      //Length of first streak
+    len2 = random(0,maxLightLen/2);      //Length of second streak
+    len3 = maxLightLen - len1 - len2;  //Length of third streak
 
+    if (len3 <= 0) {
+      len1 = 5;
+      len2 = 5;
+      len3 = 5;
+    }
+    
     if (len1 < len2) {
       uint16_t lenhold = len1;
       len1 = len2;
       len2 = lenhold;
     }
+    
     if (len1 < len3) {
       uint16_t lenhold = len1;
       len1 = len3;
       len3 = lenhold;
     }
     
-    for(uint16_t i=0; i<strip.numPixels()+len1+len2+len3+10+20; i++) {
+    streamlen = len1 + mid12 + len2  + mid23 + len3;
+
+    
+    for(uint16_t i=0; i<strip.numPixels()+streamlen; i++) {
       
       j = random(0, 255);
 
@@ -76,22 +143,22 @@ static void rainbowchaseComplex() {
           strip.setPixelColor(i-len1, 0); // Erase pixel a few steps back
       }
 
-      if (i < strip.numPixels()+len1+len2+10) {
-      strip.setPixelColor(i-len1-10, Wheel((i+j) & 255));
-      strip.setPixelColor(i-len2-len1-10, 0); // Erase pixel a few steps back
+      if (i < strip.numPixels()+len1+mid12+len2) {
+      strip.setPixelColor(i-len1-mid12, Wheel((i+j) & 255));
+      strip.setPixelColor(i-len1-mid12-len2, 0); // Erase pixel a few steps back
       }
 
       
       if (i < strip.numPixels()+len1+len2+len3+10+20) {
-      strip.setPixelColor(i-len2-len1-10-20, Wheel((i+j) & 255));
-      strip.setPixelColor(i-len3-len2-len1-10-20, 0); // Erase pixel a few steps back
+      strip.setPixelColor(i-len1-mid12-len2-mid23, Wheel((i+j) & 255));
+      strip.setPixelColor(i-len1-mid12-len2-mid23-len3, 0); // Erase pixel a few steps back
       }
 
       strip.show();
       
-      wait = random(5, 30);
       delay(wait);
     }
+    
   }
 }
 
@@ -101,9 +168,9 @@ void rainbow(uint8_t wait) {
   uint16_t i, j;
 
   for(j=0; j<256; j++) {
-    for(i=0; i<strip.numPixels()+lightUpLen; i++) {
+    for(i=0; i<strip.numPixels()+10; i++) {
       strip.setPixelColor(i, Wheel((i+j) & 255));
-      strip.setPixelColor(i-lightUpLen, 0); // Erase pixel a few steps back
+      strip.setPixelColor(i-10, 0); // Erase pixel a few steps back
     }
     strip.show();
     delay(wait);
@@ -113,11 +180,11 @@ void rainbow(uint8_t wait) {
 // rainbowCycle: Slightly different, this makes the rainbow equally distributed throughout
 void rainbowCycle(uint8_t wait) {
   uint16_t i, j;
-
+  
   for(j=0; j<256*3; j++) { // 3 cycles of all colors on wheel
-    for(i=0; i< strip.numPixels()+lightUpLen; i++) {
+    for(i=0; i< strip.numPixels()+10; i++) {
       strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
-      strip.setPixelColor(i-lightUpLen, 0); // Erase pixel a few steps back
+      strip.setPixelColor(i-10, 0); // Erase pixel a few steps back
     }
     strip.show();
     delay(wait);
