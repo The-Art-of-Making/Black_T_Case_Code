@@ -13,7 +13,7 @@
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(79, 6, NEO_GRB + NEO_KHZ800); 
 
-int maxLightLen = 40;
+int maxLightLen = 30;
 
 void setup() {
 
